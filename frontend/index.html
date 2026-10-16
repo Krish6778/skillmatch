@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillMatch | Team Builder</title>
+<style>
+:root{--purple:#6855df;--ink:#25243b;--muted:#777990;--line:#e8e8f1;--bg:#f6f7fc;--white:#fff;--green:#1c956a;--red:#c44c62}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Segoe UI",Arial,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(140deg,#f4f1ff,#f7f8fd 55%,#e9f0ff)}
+.login-card{width:min(420px,100%);background:#fff;padding:34px;border:1px solid var(--line);border-radius:22px;box-shadow:0 20px 60px #25205c12}
+.brand{font-weight:850;font-size:26px;letter-spacing:-1px}.brand span{color:var(--purple)}.muted{color:var(--muted);line-height:1.55;font-size:14px}
+label{display:block;font-size:12px;font-weight:750;margin:16px 0 7px;color:#4d4c65}
+input,textarea,select{width:100%;padding:12px 13px;border:1px solid #dedfec;border-radius:10px;background:#fff;outline-color:var(--purple)}
+textarea{resize:vertical;min-height:82px}.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:750;font-size:13px}.primary{background:var(--purple);color:#fff}.primary:hover{background:#5340c7}.soft{background:#efedff;color:var(--purple)}.danger{background:#fff0f2;color:var(--red)}.full{width:100%;margin-top:18px}.hint{background:#f6f4ff;padding:12px;border-radius:10px;font-size:12px;color:#65617e;line-height:1.7;margin-top:17px}
+.app{display:none;min-height:100vh}.sidebar{position:fixed;inset:0 auto 0 0;width:235px;background:#fff;border-right:1px solid var(--line);padding:26px 17px;display:flex;flex-direction:column}
+.sidebar .brand{margin:0 8px 38px}.side-label{font-size:10px;letter-spacing:1.4px;color:#999ab0;font-weight:800;margin:0 10px 13px}
+.nav{border:0;background:transparent;text-align:left;padding:13px;border-radius:10px;color:#666981;margin:3px 0}.nav.active,.nav:hover{background:#efedff;color:var(--purple)}
+.profile{margin-top:auto;border-top:1px solid var(--line);padding-top:17px;display:flex;gap:10px;align-items:center;font-size:12px}.avatar{width:39px;height:39px;border-radius:12px;background:#ebe7ff;color:var(--purple);display:grid;place-items:center;font-weight:850;flex-shrink:0}
+.profile small{display:block;color:var(--muted);margin-top:4px}.main{margin-left:235px;padding:30px 4%;max-width:1550px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:23px}.topbar small{color:var(--muted);letter-spacing:1.4px;font-size:10px;font-weight:800}.topbar h1{margin:5px 0 0;font-size:27px}.top-actions{display:flex;gap:9px;align-items:center}
+.hero{border-radius:19px;padding:28px 30px;color:#fff;background:linear-gradient(115deg,#29244f,#5d4ac4 75%,#7a6ae6);display:flex;align-items:center;justify-content:space-between;gap:15px}.hero .eyebrow{font-size:10px;letter-spacing:1.5px;color:#d5ceff;font-weight:800}.hero h2{font-size:clamp(23px,3vw,34px);letter-spacing:-.8px;margin:12px 0}.hero p{font-size:13px;color:#e0ddf7;line-height:1.6;margin:0}.hero-mark{font-size:65px;color:#d0c7ff;padding:0 16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0 29px}.stat{padding:17px 19px;background:#fff;border:1px solid var(--line);border-radius:14px}.stat span{font-size:12px;color:var(--muted)}.stat strong{display:block;font-size:27px;margin-top:8px}
+.section-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:25px 0 15px}.section-head h2{font-size:18px;margin:0 0 5px}.section-head p{font-size:12px;color:var(--muted);margin:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px;min-width:0}.card h3{font-size:16px;margin:12px 0 7px}.card p{font-size:13px;line-height:1.6;color:var(--muted)}.card-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.icon{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:#efedff;color:var(--purple);font-size:20px}.pill{font-size:10px;font-weight:800;padding:6px 9px;border-radius:7px;background:#e8f8f0;color:var(--green)}.pill.pending{background:#fff4df;color:#9a6a0b}.pill.rejected{background:#fff0f2;color:var(--red)}
+.meta{font-size:11px;color:var(--muted);margin:14px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.empty{background:#fff;border:1px dashed #d8d7e8;border-radius:13px;padding:30px;text-align:center;color:var(--muted);grid-column:1/-1;font-size:13px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:#16152b66;z-index:5;place-items:center;padding:20px}.modal{background:#fff;border-radius:18px;padding:25px;width:min(470px,100%);box-shadow:0 20px 70px #0002}.modal h2{margin-top:0}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.toast{position:fixed;right:22px;bottom:22px;background:#25243b;color:#fff;border-radius:10px;padding:13px 16px;font-size:13px;opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:10}.toast.show{opacity:1;transform:translateY(0)}
+.note{font-size:11px;color:#9697aa;text-align:center;margin:30px 0 8px}
+@media(max-width:850px){.sidebar{width:68px;padding:20px 7px}.sidebar .brand{font-size:0;margin:5px auto 34px}.sidebar .brand span{font-size:24px}.side-label,.nav{font-size:0;text-align:center;padding:14px 3px}.nav{font-size:0}.profile{justify-content:center}.profile>div:last-child{display:none}.main{margin-left:68px;padding:22px 3%}.grid{grid-template-columns:1fr}}
+@media(max-width:540px){.stats{grid-template-columns:1fr}.hero{padding:22px}.hero-mark{display:none}.topbar h1{font-size:22px}.top-actions .btn{padding:9px}.section-head{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<section id="login-screen" class="login-wrap">
+  <form id="login-form" class="login-card">
+    <div class="brand"><span>✦</span> SkillMatch</div>
+    <h1>Welcome back</h1>
+    <p class="muted">Sign in to discover projects and build your team.</p>
+    <label for="email">Email address</label>
+    <input id="email" type="email" value="krish@example.com" required>
+    <label for="password">Password</label>
+    <input id="password" type="password" value="demo123" required>
+    <button class="btn primary full" type="submit">Sign in →</button>
+    <div class="hint"><b>Demo accounts</b><br>krish@example.com / demo123<br>aditi@example.com / demo123<br>arjun@example.com / demo123<br>Log in as different students to demonstrate the join-request flow.</div>
+  </form>
+</section>
+
+<div id="app" class="app">
+  <aside class="sidebar">
+    <div class="brand"><span>✦</span> SkillMatch</div>
+    <p class="side-label">WORKSPACE</p>
+    <button class="nav active" data-view="dashboard">⌂ &nbsp; Dashboard</button>
+    <button class="nav" data-view="teams">♙ &nbsp; Discover Teams</button>
+    <button class="nav" data-view="myteams">✦ &nbsp; My Teams</button>
+    <button class="nav" data-view="requests">✉ &nbsp; Join Requests</button>
+    <button class="nav" data-view="os">⚙ &nbsp; OS Concepts</button>
+    <div class="profile"><div class="avatar" id="profile-avatar">KR</div><div><b id="profile-name">Student</b><small id="profile-email"></small></div></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><small>STUDENT WORKSPACE</small><h1 id="page-title">Dashboard</h1></div>
+      <div class="top-actions"><button class="btn soft" id="create-team-top">+ Create team</button><button class="btn" style="background:#fff;border:1px solid var(--line)" id="logout">Log out</button></div>
+    </header>
+    <section class="hero"><div><div class="eyebrow">YOUR NEXT IDEA STARTS HERE</div><h2>Find your people. Build something great.</h2><p>Discover student teams, send join requests and collaborate on projects.<br>Start small. Build something meaningful.</p></div><div class="hero-mark">✦</div></section>
+    <section class="stats">
+      <article class="stat"><span>Available teams</span><strong id="team-count">0</strong></article>
+      <article class="stat"><span>My teams</span><strong id="my-team-count">0</strong></article>
+      <article class="stat"><span>Pending requests for me</span><strong id="pending-count">0</strong></article>
+    </section>
+    <div class="section-head"><div><h2 id="section-title">Discover teams</h2><p id="section-subtitle">Find a team that fits your interests.</p></div></div>
+    <section id="content" class="grid"></section>
+    <p class="note">SkillMatch · PBL prototype · Demo data is stored in backend memory until restart.</p>
+  </main>
+</div>
+
+<div id="modal-backdrop" class="modal-backdrop">
+  <form id="team-form" class="modal">
+    <h2>Create a team</h2>
+    <p class="muted">Add a name and a short description for your project idea.</p>
+    <label for="team-name">Team name</label><input id="team-name" required maxlength="60" placeholder="e.g. Code Crafters">
+    <label for="team-description">Project idea</label><textarea id="team-description" placeholder="What will your team build?"></textarea>
+    <label for="team-size">Maximum team members</label>
+    <select id="team-size"><option value="3">3 members</option><option value="4" selected>4 members</option><option value="5">5 members</option><option value="6">6 members</option></select>
+    <div class="modal-actions"><button type="button" class="btn" style="background:#f1f1f7" id="cancel-modal">Cancel</button><button class="btn primary" type="submit">Create team</button></div>
+  </form>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const API = "http://localhost:8080/api";
+let currentUser = null;
+let teams = [];
+let students = [];
+let currentView = "dashboard";
+
+const $ = id => document.getElementById(id);
+
+async function api(path, options = {}) {
+  const response = await fetch(API + path, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...(options.headers || {}) }
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || data.error || "Something went wrong");
+  return data;
+}
+
+function toast(message) {
+  $("toast").textContent = message;
+  $("toast").classList.add("show");
+  setTimeout(() => $("toast").classList.remove("show"), 2600);
+}
+
+function initials(name) {
+  return name.split(" ").map(part => part[0]).slice(0, 2).join("").toUpperCase();
+}
+
+async function login(event) {
+  event.preventDefault();
+  try {
+    currentUser = await api("/login", {
+      method: "POST",
+      body: JSON.stringify({ email: $("email").value, password: $("password").value })
+    });
+    $("login-screen").style.display = "none";
+    $("app").style.display = "block";
+    $("profile-name").textContent = currentUser.name;
+    $("profile-email").textContent = currentUser.email;
+    $("profile-avatar").textContent = initials(currentUser.name);
+    await refresh();
+    toast("Welcome, " + currentUser.name + "!");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function refresh() {
+  try {
+    [teams, students] = await Promise.all([api("/teams"), api("/students")]);
+    const dashboard = await api("/dashboard/" + currentUser.id);
+    $("team-count").textContent = dashboard.availableTeams;
+    $("my-team-count").textContent = dashboard.teamCount;
+    $("pending-count").textContent = dashboard.pendingRequests;
+    render();
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+function render() {
+  const content = $("content");
+  const titles = {
+    dashboard: ["Dashboard", "Discover teams", "Find a team that fits your interests."],
+    teams: ["Discover Teams", "All teams", "Send a request to join a team."],
+    myteams: ["My Teams", "Teams I belong to", "Teams you lead or have joined."],
+    requests: ["Join Requests", "Requests for my teams", "Accept or reject requests as a team leader."],
+    os: ["Operating Systems", "OS Concepts Lab", "Explore CPU scheduling and synchronization concepts."]
+  };
+  $("page-title").textContent = titles[currentView][0];
+  $("section-title").textContent = titles[currentView][1];
+  $("section-subtitle").textContent = titles[currentView][2];
+  $("create-team-top").style.display = currentView === "requests" ? "none" : "inline-block";
+
+  if (currentView === "requests") {
+    renderRequests();
+    return;
+  }
+
+  if (currentView === "os") {
+    renderOSConcepts();
+    return;
+  }
+
+  let visibleTeams = teams;
+  if (currentView === "myteams") {
+    visibleTeams = teams.filter(team =>
+      team.leaderId === currentUser.id || team.members.includes(currentUser.id)
+    );
+  }
+
+  if (!visibleTeams.length) {
+    content.innerHTML = '<div class="empty">No teams to show yet. Create a team or explore available teams.</div>';
+    return;
+  }
+
+  content.innerHTML = visibleTeams.map(team => {
+    const isLeader = team.leaderId === currentUser.id;
+    const isMember = team.members.includes(currentUser.id);
+    const full = team.memberCount >= team.maxMembers;
+    let button = "";
+    if (isLeader) {
+      button = '<button class="btn soft" data-manage="' + team.id + '">Manage requests</button>';
+    } else if (isMember) {
+      button = '<button class="btn soft" disabled>Already a member</button>';
+    } else if (full) {
+      button = '<button class="btn soft" disabled>Team full</button>';
+    } else {
+      button = '<button class="btn primary" data-join="' + team.id + '">Request to join →</button>';
+    }
+
+    return `<article class="card">
+      <div class="card-top"><div class="icon">✦</div><span class="pill">${team.memberCount}/${team.maxMembers} MEMBERS</span></div>
+      <h3>${escapeHtml(team.name)}</h3>
+      <p>${escapeHtml(team.description || "A new team looking for collaborators.")}</p>
+      <div class="meta">Team leader: <b>${escapeHtml(team.leaderName)}</b></div>
+      <div class="meta">Team ID: ${team.id}</div>
+      <div class="actions">${button}</div>
+    </article>`;
+  }).join("");
+}
+
+async function renderRequests() {
+  const content = $("content");
+  const leaderTeams = teams.filter(team => team.leaderId === currentUser.id);
+  if (!leaderTeams.length) {
+    content.innerHTML = '<div class="empty">You do not lead a team yet. Create a team to receive join requests.</div>';
+    return;
+  }
+
+  try {
+    const lists = await Promise.all(leaderTeams.map(async team => ({
+      team,
+      requests: await api(`/teams/${team.id}/requests?leaderId=${currentUser.id}`)
+    })));
+    const all = lists.flatMap(group => group.requests.map(request => ({...request, teamName: group.team.name})));
+    if (!all.length) {
+      content.innerHTML = '<div class="empty">No requests yet. Other students can request to join your team after logging in.</div>';
+      return;
+    }
+
+    content.innerHTML = all.map(request => {
+      const pending = request.status === "PENDING";
+      return `<article class="card">
+        <div class="card-top"><div class="icon">✉</div><span class="pill ${request.status === "REJECTED" ? "rejected" : pending ? "pending" : ""}">${request.status}</span></div>
+        <h3>${escapeHtml(request.studentName)}</h3>
+        <p>Wants to join <b>${escapeHtml(request.teamName)}</b>.</p>
+        <div class="meta">Request ID: ${request.id} · Student ID: ${request.studentId}</div>
+        ${pending ? `<div class="actions"><button class="btn primary" data-accept="${request.id}">Accept</button><button class="btn danger" data-reject="${request.id}">Reject</button></div>` : ""}
+      </article>`;
+    }).join("");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+function renderOSConcepts() {
+  const content = $("content");
+  content.innerHTML = `
+    <article class="card" style="grid-column:1/-1">
+      <div class="card-top"><div class="icon">▤</div><span class="pill">LIVE DEMO</span></div>
+      <h3>CPU Scheduling — First Come, First Served (FCFS)</h3>
+      <p>Each process has an arrival time and CPU burst time. The backend calculates start time, completion time, waiting time and turnaround time.</p>
+      <label for="fcfs-input">Processes (one per line: Name, Arrival Time, Burst Time)</label>
+      <textarea id="fcfs-input" style="min-height:120px">P1,0,5
+P2,1,3
+P3,2,2</textarea>
+      <div class="actions"><button class="btn primary" id="run-fcfs">Run FCFS Scheduler</button></div>
+      <div id="fcfs-results" style="margin-top:18px"></div>
+    </article>
+    <article class="card">
+      <div class="card-top"><div class="icon">🔒</div><span class="pill">IN BACKEND</span></div>
+      <h3>Synchronization / Critical Section</h3>
+      <p>When a leader accepts a join request, the backend checks capacity and adds the member as one synchronized operation. This helps prevent two simultaneous accept operations from exceeding the team limit in this in-memory demo.</p>
+      <div class="meta"><b>Concepts:</b> race condition, mutual exclusion, critical section.</div>
+    </article>
+    <article class="card">
+      <div class="card-top"><div class="icon">▦</div><span class="pill">RESOURCE MANAGEMENT</span></div>
+      <h3>Team capacity as a limited resource</h3>
+      <p>Each team has a maximum number of members. A request is rejected if the team is full, and the backend checks the limit again before accepting a request.</p>
+      <div class="meta"><b>Concepts:</b> resource allocation and safe capacity checks.</div>
+    </article>
+    <article class="card" style="grid-column:1/-1">
+      <h3>How this connects to Operating Systems</h3>
+      <p><b>Process:</b> a unit of work that needs CPU time. <b>Scheduling:</b> deciding which process runs first. <b>Critical section:</b> code that accesses shared state and must be protected. <b>Resource allocation:</b> assigning limited resources without exceeding capacity.</p>
+      <p class="muted">The FCFS scheduler is a real calculation performed by the Java backend. The synchronization and capacity examples are part of the team-request workflow.</p>
+    </article>
+  `;
+
+  $("run-fcfs").addEventListener("click", async () => {
+    const lines = $("fcfs-input").value.trim().split(/\r?\n/).filter(Boolean);
+    const jobs = [];
+    for (const line of lines) {
+      const parts = line.split(",").map(value => value.trim());
+      if (parts.length !== 3 || !parts[0] ||
+          !Number.isInteger(Number(parts[1])) ||
+          !Number.isInteger(Number(parts[2]))) {
+        toast("Use one process per line: Name, Arrival Time, Burst Time");
+        return;
+      }
+      jobs.push({
+        name: parts[0],
+        arrivalTime: Number(parts[1]),
+        burstTime: Number(parts[2])
+      });
+    }
+
+    try {
+      const result = await api("/os/fcfs", {
+        method: "POST",
+        body: JSON.stringify(jobs)
+      });
+      const rows = result.processes.map(job => `
+        <tr>
+          <td>${escapeHtml(job.name)}</td><td>${job.arrivalTime}</td>
+          <td>${job.burstTime}</td><td>${job.startTime}</td>
+          <td>${job.completionTime}</td><td>${job.waitingTime}</td>
+          <td>${job.turnaroundTime}</td>
+        </tr>`).join("");
+
+      $("fcfs-results").innerHTML = `
+        <div class="row" style="margin-bottom:12px">
+          <span class="pill">Average waiting: ${result.averageWaitingTime}</span>
+          <span class="pill">Average turnaround: ${result.averageTurnaroundTime}</span>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;text-align:left">
+            <thead><tr>${["Process","Arrival","Burst","Start","Completion","Waiting","Turnaround"].map(h =>
+              `<th style="padding:9px;border-bottom:1px solid var(--line)">${h}</th>`).join("")}</tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+        <p class="muted">${escapeHtml(result.explanation)}</p>`;
+    } catch (error) {
+      toast(error.message);
+    }
+  });
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[char]));
+}
+
+async function createTeam(event) {
+  event.preventDefault();
+  try {
+    await api("/teams", {
+      method: "POST",
+      body: JSON.stringify({
+        name: $("team-name").value,
+        description: $("team-description").value,
+        maxMembers: Number($("team-size").value),
+        leaderId: currentUser.id
+      })
+    });
+    closeModal();
+    $("team-form").reset();
+    await refresh();
+    toast("Team created successfully.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function sendRequest(teamId) {
+  try {
+    await api(`/teams/${teamId}/requests`, {
+      method: "POST",
+      body: JSON.stringify({ studentId: currentUser.id })
+    });
+    await refresh();
+    toast("Join request sent to the team leader.");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+async function updateRequest(requestId, status) {
+  try {
+    await api(`/requests/${requestId}?leaderId=${currentUser.id}&status=${status}`, {
+      method: "PATCH"
+    });
+    await refresh();
+    if (currentView === "requests") await renderRequests();
+    toast("Request " + status.toLowerCase() + ".");
+  } catch (error) {
+    toast(error.message);
+  }
+}
+
+function openModal() { $("modal-backdrop").style.display = "grid"; }
+function closeModal() { $("modal-backdrop").style.display = "none"; }
+
+$("login-form").addEventListener("submit", login);
+$("team-form").addEventListener("submit", createTeam);
+$("create-team-top").addEventListener("click", openModal);
+$("cancel-modal").addEventListener("click", closeModal);
+$("modal-backdrop").addEventListener("click", event => {
+  if (event.target === $("modal-backdrop")) closeModal();
+});
+
+document.querySelectorAll(".nav").forEach(button => {
+  button.addEventListener("click", async () => {
+    currentView = button.dataset.view;
+    document.querySelectorAll(".nav").forEach(nav => nav.classList.toggle("active", nav === button));
+    await refresh();
+  });
+});
+
+$("content").addEventListener("click", async event => {
+  const button = event.target.closest("button");
+  if (!button) return;
+  if (button.dataset.join) await sendRequest(Number(button.dataset.join));
+  if (button.dataset.accept) await updateRequest(Number(button.dataset.accept), "ACCEPTED");
+  if (button.dataset.reject) await updateRequest(Number(button.dataset.reject), "REJECTED");
+  if (button.dataset.manage) {
+    currentView = "requests";
+    document.querySelectorAll(".nav").forEach(nav => nav.classList.toggle("active", nav.dataset.view === "requests"));
+    await refresh();
+  }
+});
+
+$("logout").addEventListener("click", () => {
+  currentUser = null;
+  $("app").style.display = "none";
+  $("login-screen").style.display = "grid";
+  $("password").value = "demo123";
+  $("email").value = "krish@example.com";
+  currentView = "dashboard";
+});
+
+$("team-count").textContent = "—";
+</script>
+</body>
+</html>
